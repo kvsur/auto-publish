@@ -4,7 +4,7 @@
     ],
     "proxy": {
         "/api": {
-        "target": "http://10.10.21.124:1024/",
+        "target": "http://127.0.0.1:1024/",
         "changeOrigin": true,
         "pathRewrite": { "^/api" : "/api" }
         }

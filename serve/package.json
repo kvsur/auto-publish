@@ -19,6 +19,7 @@
     "chalk": "^2.4.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.5",
+    "event-stream": "^4.0.1",
     "express": "^4.16.4",
     "js-base64": "^2.4.9",
     "jsonwebtoken": "^8.4.0",
