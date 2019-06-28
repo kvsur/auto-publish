@@ -6,8 +6,9 @@ const { ARCHIVE_PATH, DIST_PATH } = require('../config/path.config');
  */
 
 class RollBack {
-    constructor ({ deployPath }) {
+    constructor ({ deployPath, ARCHIVE_PATH }) {
         this.deployPath = deployPath;
+        this.ARCHIVE_PATH = ARCHIVE_PATH;
         this.steps = [];
     }
 
@@ -55,6 +56,13 @@ class RollBack {
         const cmd = `rm -rf ${this.deployPath}`;
         exec({cmd}).finally(() => {
             this._bakMap();
+        });
+    }
+
+    _execPlusShell() {
+        const cmd = `rm -f ${this.ARCHIVE_PATH}/tempShell.sh`;
+        exec({cmd}).finally(() => {
+            this._deploy();
         });
     }
 }

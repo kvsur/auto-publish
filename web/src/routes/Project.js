@@ -10,7 +10,7 @@ import styles from './Project.less';
 const confirm = Modal.confirm;
 const TextArea = Input.TextArea;
 
-@connect(({projects}) => ({...projects}))
+@connect(({ projects }) => ({ ...projects }))
 class Project extends React.Component {
     state = {
         _id: '',
@@ -82,20 +82,23 @@ class Project extends React.Component {
     showBrokerShell(broker) {
         confirm({
             title: broker.brokerName,
-            content: <TextArea 
-                    style={{fontSize: '16px'}} 
+            content: <div>
+                <TextArea
+                    style={{ fontSize: '16px' }}
                     // autosize={{minRows: 7, maxRows: 15}} 
                     disabled
                     defaultValue={broker.brokerShell}
-                    autosize={{minRows: 8}}
-                />,
+                    autosize={{ minRows: 8 }}
+                />
+                <p>是否启用：{broker.useShell ? '已启用' : '未启用'}</p>
+            </div>,
             okText: '确认',
             cancelText: '取消',
             // style: {width: '500px'},
             width: 650,
         });
     }
-    render () {
+    render() {
         return (
             <section className={styles.projects}>
                 {
@@ -117,9 +120,9 @@ class Project extends React.Component {
                                             <p><label>brokerName: </label><span>{broker.brokerName}</span></p>
                                             <p><label>brokerKey: </label><span>{broker.brokerKey}</span></p>
                                             <a onClick={e => this.showBrokerShell(broker)}>点击查看附加shell</a>
-                                            <Icon 
-                                                type={'close'} 
-                                                onClick={e => {this.deleteBroker(project._id, index)}} 
+                                            <Icon
+                                                type={'close'}
+                                                onClick={e => { this.deleteBroker(project._id, index) }}
                                                 className={styles.deleteProject}
                                             />
                                         </div>
@@ -127,7 +130,7 @@ class Project extends React.Component {
                                 }
                             </div>
                             <section>
-                                <Icon type="plus"  title={'新增券商'}
+                                <Icon type="plus" title={'新增券商'}
                                     onClick={
                                         e => {
                                             this.setState({
@@ -138,12 +141,12 @@ class Project extends React.Component {
                                     }
                                 />
                             </section>
-                            <Icon type={'close'} onClick={e => {this.deleteProject(project._id)}} className={styles.deleteProject}/>
+                            <Icon type={'close'} onClick={e => { this.deleteProject(project._id) }} className={styles.deleteProject} />
                         </div>
-                    )): null
+                    )) : null
                 }
                 <section>
-                    <Icon onClick={e => this.toggleAdd('showAddProject')} type="plus"  title={'新增项目'}/>
+                    <Icon onClick={e => this.toggleAdd('showAddProject')} type="plus" title={'新增项目'} />
                 </section>
                 <AddProject
                     config={

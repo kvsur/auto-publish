@@ -1,2 +1,2 @@
-# publish
+# auto-publish
 publish

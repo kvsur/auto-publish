@@ -30,6 +30,7 @@ module.exports = ({cmd, options, args}) => {
             const finalCmd = !args && cmd || `${cmd} -${options} ${args}`;
             exec(finalCmd, (err, stdout, stderr) => {
                 if (err) {
+                    error(finalCmd);
                     error(err);
                     reject(err);
                     return;
@@ -39,6 +40,7 @@ module.exports = ({cmd, options, args}) => {
                 } else {
                     success(stdout);
                 }
+                success(finalCmd);
                 resolve(stdout || stderr);
             });
         }

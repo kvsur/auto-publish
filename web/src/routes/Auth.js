@@ -99,7 +99,7 @@ class Auth extends React.Component {
                                     prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                                     type="password"
                                     autoComplete="password"
-                                    placeholder="输密码"
+                                    placeholder="输密码，初始密码123456"
                                 />
                             )}
                         </FormItem>

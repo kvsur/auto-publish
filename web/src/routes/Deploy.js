@@ -85,7 +85,7 @@ class Deploy extends React.Component {
 
     handleSelectingBroker = broker => {
         const [ brokerName, brokerKey, _brokerId ] = broker.split('-');
-        if (brokerKey === this.state.deployConfig.brokerKey) return;
+        if (brokerKey === this.state.deployConfig.brokerKey && brokerName === this.state.deployConfig.brokerName) return;
         this.setState({
             canSwitch: true,
             deployConfig: {
