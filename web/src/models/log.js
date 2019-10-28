@@ -7,7 +7,7 @@ export default {
     },
     effects: {
         *fetchLogs ({ payload }, { put, call }) {
-            const date = (payload && payload.date) || new Date().toLocaleDateString().replace(/\//g, '-');
+            const date = (payload && payload.date) || '';
             const res = yield call(fetchLogs, { date });
             const logs = res.c === 200 && res.d || [];
 

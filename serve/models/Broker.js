@@ -26,6 +26,10 @@ module.exports = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    dist: {
+        type: String,
+        default: '',
+    },
     _id: {
         type: mongoose.Types.ObjectId,
         default: () => new mongoose.Types.ObjectId(),

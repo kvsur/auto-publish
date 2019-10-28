@@ -82,6 +82,16 @@ class AddBroker extends React.Component {
                                 />
                             )}
                         </FormItem>
+                        <FormItem style={{width: '45%'}}>
+                            {getFieldDecorator('dist', {
+                                initialValue: '',
+                            })(
+                                <Input
+                                    prefix={<Icon type="key" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                                    placeholder="self-dist"
+                                />
+                            )}
+                        </FormItem>
                     </div>
                     <FormItem>
                         <h3>部署附加shell脚本</h3>

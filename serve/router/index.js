@@ -56,7 +56,7 @@ router.post('/auth', async (request, response) => {
 router.get('/log', async (request, response) => {
     const deployDate = request.query.date;
     try {
-        const logs = await Log.find().sort({_id: -1}).limit(50);
+        const logs = await Log.find({deployDate: new RegExp(`${deployDate}`)}).sort({_id: -1}).limit(100);
         response.json({
             c: 200,
             m: '',

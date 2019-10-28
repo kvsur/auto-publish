@@ -22,6 +22,7 @@ class Deploy extends React.Component {
             projectName: '',
             brokerKey: '',
             brokerName: '',
+            selfDist: '',
         },
         brokers: [],
         canSwitch: false,
@@ -55,8 +56,9 @@ class Deploy extends React.Component {
     }
 
     handleSelectingProject = project => {
+        const { deployConfig } = this.state;
         const [ projectKey, index ] = project.split('-');
-        if (this.state.deployConfig.projectKey === projectKey) return;
+        if (deployConfig.projectKey === projectKey) return;
         project = this.props.projectConfig[index];
         const brokers = project.brokers;
         this.setState({
@@ -84,15 +86,17 @@ class Deploy extends React.Component {
     }
 
     handleSelectingBroker = broker => {
-        const [ brokerName, brokerKey, _brokerId ] = broker.split('-');
-        if (brokerKey === this.state.deployConfig.brokerKey && brokerName === this.state.deployConfig.brokerName) return;
+        const { deployConfig } = this.state;
+        const [ brokerName, brokerKey, _brokerId, selfDist ] = broker.split('-');
+        if (brokerKey === deployConfig.brokerKey && brokerName === deployConfig.brokerName) return;
         this.setState({
             canSwitch: true,
             deployConfig: {
-                ...this.state.deployConfig,
+                ...deployConfig,
                 brokerKey,
                 brokerName,
                 _brokerId,
+                selfDist
             },
             showBrokerValue: brokerName,
         });
@@ -100,10 +104,11 @@ class Deploy extends React.Component {
     }
 
     switchChange = isTrunk => {
-        if (this.state.deployConfig.isTrunk === isTrunk) return;
+        const { deployConfig } = this.state;
+        if (deployConfig.isTrunk === isTrunk) return;
         this.setState({
             deployConfig: {
-                ...this.state.deployConfig,
+                ...deployConfig,
                 isTrunk,
             },
         });
@@ -111,12 +116,13 @@ class Deploy extends React.Component {
     }
 
     getSVNversions = (currentPage) => {
+        const { deployConfig } = this.state;
         this.props.dispatch({
             type: 'deploy/getSVNversions',
             payload: {
-                packageWhere: this.state.deployConfig.packageWhere,
+                packageWhere: deployConfig.packageWhere,
                 currentPage,
-                isTrunk: this.state.deployConfig.isTrunk,
+                isTrunk: deployConfig.isTrunk,
             },
         });
     }
@@ -126,13 +132,16 @@ class Deploy extends React.Component {
     }
 
     onOk = () => {
+        const { deployConfig } = this.state;
+        const { dist, selfDist } = deployConfig;
         this.setState({
             loading: true,
         });
         this.props.dispatch({
             type: 'deploy/deploy',
             payload: {
-                ...this.state.deployConfig,
+                ...deployConfig,
+                dist: selfDist || dist,
                 operator: this.props.operator,
             },
             cb: res => {
@@ -162,9 +171,10 @@ class Deploy extends React.Component {
     }
 
     deploy(svnVersion) {
+        const { deployConfig } = this.state;
         this.setState({
             deployConfig: {
-                ...this.state.deployConfig,
+                ...deployConfig,
                 svnVersion,
             },
             visible: true,
@@ -172,20 +182,21 @@ class Deploy extends React.Component {
     }
 
     render() {
+        const { deployConfig, visible, loading, errorMsg, showBrokerValue, brokers, projectIndex, canSwitch, currentPage } = this.state;
         return (
             <section className={styles.deployContainer}>
                 <DeployModal
                     title="确认部署？"
                     width={300}
-                    visible={this.state.visible}
+                    visible={visible}
                     onOk={this.onOk}
                     onCancel={this.onCancel}
-                    loading={this.state.loading}
-                    errorMsg={this.state.errorMsg}
-                    projectName={this.state.deployConfig.projectName}
-                    brokerName={this.state.deployConfig.brokerName}
-                    isTrunk={this.state.deployConfig.isTrunk}
-                    svnVersion={this.state.deployConfig.svnVersion}
+                    loading={loading}
+                    errorMsg={errorMsg}
+                    projectName={deployConfig.projectName}
+                    brokerName={deployConfig.brokerName}
+                    isTrunk={deployConfig.isTrunk}
+                    svnVersion={deployConfig.svnVersion}
                 />
                 <Divider/>
                 <Form layout="inline" className={styles.deployForm}>
@@ -201,23 +212,27 @@ class Deploy extends React.Component {
                         </Select>
                     </FormItem>
                     <FormItem label="券商选择">
-                        <Select onSelect={this.handleSelectingBroker} value={this.state.showBrokerValue} placeholder="选择券商" disabled={!~this.state.projectIndex} style={{width: '200px'}}>
+                        <Select onSelect={this.handleSelectingBroker} value={showBrokerValue} placeholder="选择券商" disabled={!~projectIndex} style={{width: '200px'}}>
                             {
-                                this.state.brokers.map(broker => {
+                                brokers.map(broker => {
                                     return (
-                                        <Option value={`${broker.brokerName}-${broker.brokerKey}-${broker._id}`} key={`${broker.brokerName}-${broker.brokerKey}-${broker._id}`}>{broker.brokerName}</Option>
+                                        <Option
+                                            value={`${broker.brokerName}-${broker.brokerKey}-${broker._id}-${broker.dist || ''}`}
+                                            key={`${broker.brokerName}-${broker.brokerKey}-${broker._id}-${broker.dist || ''}`}>
+                                            {broker.brokerName}
+                                        </Option>
                                     );
                                 })
                             }
                         </Select>
                     </FormItem>
                     <FormItem label="是否为trunk取包部署">
-                            <Switch defaultChecked={false} checked={this.state.deployConfig.isTrunk} disabled={!this.state.canSwitch} onChange={this.switchChange}/>
+                            <Switch defaultChecked={false} checked={deployConfig.isTrunk} disabled={!canSwitch} onChange={this.switchChange}/>
                     </FormItem>
                     <FormItem>
                         <Button
-                            disabled={!this.state.canSwitch}
-                            onClick={() => {this.getSVNversions(this.state.currentPage)}}
+                            disabled={!canSwitch}
+                            onClick={() => {this.getSVNversions(currentPage)}}
                             style={{borderColor: '#963cda', backgroundColor: '#963cda', color: '#fff'}}>
                             查询
                         </Button>

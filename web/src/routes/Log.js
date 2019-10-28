@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'dva';
 import { Table, DatePicker, message, Divider } from 'antd';
+import moment from 'moment';
 
 import styles from './Log.less';
 
@@ -15,6 +16,10 @@ const today = () => new Date().toLocaleString('zh-CN',
 
 @connect(({ logs }) => logs)
 class Log extends React.Component {
+    state = {
+        dateString: today()
+    };
+
     UNSAFE_componentWillMount() {
         this.props.dispatch({
             type: 'logs/fetchLogs',
@@ -31,6 +36,9 @@ class Log extends React.Component {
             );
             return;
         }
+        this.setState({
+            dateString,
+        });
         this.props.dispatch({
             type: 'logs/fetchLogs',
             payload: {
@@ -85,11 +93,13 @@ class Log extends React.Component {
             },
         ];
 
+        const { dateString } = this.state;
+
         return (
             <section className={styles.logPanel}>
                 <Divider />
                 <div className={styles.logDatePicker}>
-                    <DatePicker onChange={this.onChange} size="" style={{ width: '282px' }} />
+                    <DatePicker value={moment(dateString)} onChange={this.onChange} size="" style={{ width: '282px' }} />
                 </div>
                 <Divider />
                 <Table
