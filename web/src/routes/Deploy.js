@@ -57,7 +57,7 @@ class Deploy extends React.Component {
 
     handleSelectingProject = project => {
         const { deployConfig } = this.state;
-        const [ projectKey, index ] = project.split('-');
+        const [ projectKey, index ] = project.split('||');
         if (deployConfig.projectKey === projectKey) return;
         project = this.props.projectConfig[index];
         const brokers = project.brokers;
