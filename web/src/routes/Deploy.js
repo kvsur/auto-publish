@@ -87,7 +87,7 @@ class Deploy extends React.Component {
 
     handleSelectingBroker = broker => {
         const { deployConfig } = this.state;
-        const [ brokerName, brokerKey, _brokerId, selfDist ] = broker.split('-');
+        const [ brokerName, brokerKey, _brokerId, selfDist ] = broker.split('||');
         if (brokerKey === deployConfig.brokerKey && brokerName === deployConfig.brokerName) return;
         this.setState({
             canSwitch: true,
@@ -205,7 +205,7 @@ class Deploy extends React.Component {
                             {
                                 this.props.projectConfig.map((project, index) => {
                                     return (
-                                        <Option value={`${project.projectKey}-${index}`} key={`${project.projectKey}-${index}`}>{project.projectName}</Option>
+                                        <Option value={`${project.projectKey}||${index}`} key={`${project.projectKey}||${index}`}>{project.projectName}</Option>
                                     );
                                 })
                             }
@@ -217,8 +217,8 @@ class Deploy extends React.Component {
                                 brokers.map(broker => {
                                     return (
                                         <Option
-                                            value={`${broker.brokerName}-${broker.brokerKey}-${broker._id}-${broker.dist || ''}`}
-                                            key={`${broker.brokerName}-${broker.brokerKey}-${broker._id}-${broker.dist || ''}`}>
+                                            value={`${broker.brokerName}||${broker.brokerKey}||${broker._id}||${broker.dist || ''}`}
+                                            key={`${broker.brokerName}||${broker.brokerKey}||${broker._id}||${broker.dist || ''}`}>
                                             {broker.brokerName}
                                         </Option>
                                     );

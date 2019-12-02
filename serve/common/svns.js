@@ -28,9 +28,10 @@ module.exports.getVersions = ({packageWhere, pagePer, currentPage}) => {
                     return;
                 }
                 const reg = /^\d+$/;
+                const reg2 = /^[0-9]+(\.[0-9]+){1,}\.\w+.\w+$/;
                 let versions = [];
                 files.forEach(file => {
-                    if (reg.test(file)) {
+                    if (reg.test(file) || reg2.test(file)) {
                         versions.unshift(file);
                     }
                 });
