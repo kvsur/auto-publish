@@ -23,7 +23,7 @@ class Deploy {
         this.tarName = `hudson-${this.packageWhere}-${svnVersion}.tgz`;
         this.archive_source = `${PACKAGE_DIR_ROOT}/${this.packageWhere}/${svnVersion}/${this.tarName}`;
 
-        this.distPath = `${DIST_PATH}/dist/${dist}`;
+        this.distPath = dist === 'dist' ? `${DIST_PATH}/dist` : `${DIST_PATH}/dist/${dist}`;
 
         // 初始化日志文件
         this.log = new Log();
