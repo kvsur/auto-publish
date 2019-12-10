@@ -1,11 +1,15 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Table, DatePicker, message, Divider } from 'antd';
+import { Table, DatePicker, Pagination, Divider, Form, Input } from 'antd';
 import moment from 'moment';
 
 import styles from './Log.less';
 
-const today = () => new Date().toLocaleString('zh-CN',
+const Item = Form.Item;
+
+const RangePicker = DatePicker.RangePicker;
+
+const calcTime = time => new Date(time).toLocaleString('zh-CN',
     {
         hour12: false,
         day: '2-digit',
@@ -17,34 +21,79 @@ const today = () => new Date().toLocaleString('zh-CN',
 @connect(({ logs }) => logs)
 class Log extends React.Component {
     state = {
-        dateString: today()
+        params: {
+            beginTime: calcTime((+new Date()) - (7 * 24 * 60 * 60 * 1000)),
+            endTime: calcTime((+new Date())),
+            projectName: '',
+            brokerName: '',
+            currentPage: 1,
+            perPage: 20,
+        },
+        total: 0,
     };
 
     UNSAFE_componentWillMount() {
+        this.getList();
+    }
+    getList = () => {
+        const { params: { beginTime, endTime, projectName, brokerName, currentPage, perPage} } = this.state;
         this.props.dispatch({
             type: 'logs/fetchLogs',
             payload: {
-                date: today(),
+                beginTime: new Date(`${beginTime} 00:00:00`).getTime(),
+                endTime: new Date(`${endTime} 23:59:59`).getTime(),
+                projectName, brokerName, currentPage, perPage
             }
+        }).then(total => {
+            this.setState({
+                total
+            });
         });
     }
-    onChange = (date, dateString) => {
-        if ((new Date(dateString)) > (new Date(today()))) {
-            message.error(
-                '你不知道今天之后的日期不能选么?',
-                3
-            );
-            return;
-        }
+    onChange = (_, dateString) => {
+        let [beginTime, endTime] = dateString;
+        beginTime = beginTime || calcTime((+new Date()) - (7 * 24 * 60 * 60 * 1000));
+        endTime = endTime || calcTime(+new Date())
+
         this.setState({
-            dateString,
+            params: {
+                ...this.state.params,
+                beginTime, endTime
+            }
+        }, () => {
+            this.getList();
         });
-        this.props.dispatch({
-            type: 'logs/fetchLogs',
-            payload: {
-                date: dateString,
-            },
-        });
+    }
+
+    currentChange = currentPage => {
+        this.setState({
+            params: {
+                ...this.state.params,
+                currentPage,
+            }
+        }, () => {
+            this.getList();
+        })
+    }
+
+    sizeChange = (_, perPage) => {
+        this.setState({
+            params: {
+                ...this.state.params,
+                perPage,
+            }
+        }, () => {
+            this.getList();
+        })
+    }
+
+    handleNameChange = (value, key) => {
+        this.setState({
+            params: {
+                ...this.state.params,
+                [key]: value,
+            }
+        })
     }
     render() {
         const columns = [
@@ -93,15 +142,46 @@ class Log extends React.Component {
             },
         ];
 
-        const { dateString } = this.state;
+        const { params: { beginTime, endTime, projectName, brokerName, currentPage, perPage }, total } = this.state;
 
         return (
             <section className={styles.logPanel}>
                 <Divider />
-                <div className={styles.logDatePicker}>
-                    <DatePicker value={moment(dateString)} onChange={this.onChange} size="" style={{ width: '282px' }} />
-                </div>
-                <Divider />
+                {/* <div className={styles.logDatePicker}>
+                    
+                </div> */}
+                <Form
+                    layout="inline"
+                >
+                    <Item label="项目名">
+                        <Input
+                            value={projectName}
+                            onChange={e => {this.handleNameChange(e.target.value, 'projectName')}}
+                            onBlur={this.getList}
+                            onPressEnter={this.getList}/>
+                    </Item>
+                    <Item label="券商名">
+                        <Input
+                            vlaue={brokerName}
+                            onChange={e => {this.handleNameChange(e.target.value, 'brokerName')}}
+                            onBlur={this.getList}
+                            onPressEnter={this.getList}/>
+                    </Item>
+                    <Item label="日期">
+                        <RangePicker value={[moment(beginTime), moment(endTime)]} onChange={this.onChange} />
+                    </Item>
+                    <Item>
+                        <Pagination
+                            pageSizeOptions={['20', '40', '80', '100']}
+                            showSizeChanger={true}
+                            // showTotal={true}
+                            total={total}
+                            current={currentPage}
+                            pageSize={perPage}
+                            onChange={this.currentChange}
+                            onShowSizeChange={this.sizeChange} />
+                    </Item>
+                </Form>
                 <Table
                     dataSource={this.props.logs}
                     columns={columns}

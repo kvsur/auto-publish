@@ -7,8 +7,7 @@ export default {
     },
     effects: {
         *fetchLogs ({ payload }, { put, call }) {
-            const date = (payload && payload.date) || '';
-            const res = yield call(fetchLogs, { date });
+            const res = yield call(fetchLogs, { ...payload });
             const logs = res.c === 200 && res.d || [];
 
             logs.forEach(log => {
@@ -21,6 +20,8 @@ export default {
                     logs
                 },
             });
+
+            return Promise.resolve(res.t || 0);
         }
     },
     reducers: {

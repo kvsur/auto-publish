@@ -42,6 +42,10 @@ const LogSchema = new mongoose.Schema({
         trim,
         required,
     },
+    date: {
+        type: Number,
+        default: +new Date
+    },
     deployDate: {
         type: String,
         default: () => new Date().toLocaleString('zh-CN', {hour12: false, day: '2-digit', month: '2-digit', year: 'numeric'}),

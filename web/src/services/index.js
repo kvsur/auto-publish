@@ -10,12 +10,13 @@ export function login(user) {
 	});
 }
 
-export function fetchLogs({ date }) {
+export function fetchLogs(body) {
 	return request(`/api/log`, {
-		method: 'GET',
-		params: {
-			date,
-		}
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(body)
 	})
 }
 

@@ -53,14 +53,21 @@ router.post('/auth', async (request, response) => {
 /**
  * 日志路由
  */
-router.get('/log', async (request, response) => {
-    const deployDate = request.query.date;
+router.post('/log', async (request, response) => {
+    const { beginTime, endTime, projectName, brokerName, currentPage, perPage } = request.body;
     try {
-        const logs = await Log.find({deployDate: new RegExp(`${deployDate}`)}).sort({_id: -1}).limit(100);
+        const t = (await Log.find()).length;
+        const logs = await Log.find({
+            date: { $gte: beginTime, $lte: endTime },
+            projectName: new RegExp(`${projectName}`),
+            brokerName: new RegExp(`${brokerName}`),
+        })
+            .sort({_id: -1}).skip(((currentPage || 1) - 1) * perPage).limit(perPage || 20);
         response.json({
             c: 200,
             m: '',
             d: logs,
+            t
         });
     } catch (e) {
         response.json({
