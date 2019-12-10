@@ -58,7 +58,8 @@ class Log extends React.Component {
         this.setState({
             params: {
                 ...this.state.params,
-                beginTime, endTime
+                beginTime, endTime,
+                currentPage: 1,
             }
         }, () => {
             this.getList();
@@ -81,6 +82,7 @@ class Log extends React.Component {
             params: {
                 ...this.state.params,
                 perPage,
+                currentPage: 1
             }
         }, () => {
             this.getList();
@@ -92,6 +94,7 @@ class Log extends React.Component {
             params: {
                 ...this.state.params,
                 [key]: value,
+                currentPage: 1,
             }
         })
     }
@@ -151,6 +154,7 @@ class Log extends React.Component {
                     
                 </div> */}
                 <Form
+                    className={styles.form}
                     layout="inline"
                 >
                     <Item label="项目名">
@@ -172,6 +176,7 @@ class Log extends React.Component {
                     </Item>
                     <Item>
                         <Pagination
+                            size="small"
                             pageSizeOptions={['20', '40', '80', '100']}
                             showSizeChanger={true}
                             // showTotal={true}
