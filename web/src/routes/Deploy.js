@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Select, Form, Switch, Divider, Button, Tag, message, Pagination } from 'antd';
+import { Select, Form, Switch, Divider, Button, Tag, message, Pagination, Modal } from 'antd';
 
 import color from '../utils/Color';
-import DeployModal from '../components/DeployModal';
+import DeployInfo from '../components/DeployInfo';
 
 import styles from './Deploy.less';
 
@@ -32,6 +32,7 @@ class Deploy extends React.Component {
         visible: false,
         errorMsg: '',
         loading: false,
+        id: '',
     };
 
     UNSAFE_componentWillMount() {
@@ -132,7 +133,7 @@ class Deploy extends React.Component {
     }
 
     onOk = () => {
-        const { deployConfig } = this.state;
+        const { deployConfig, id } = this.state;
         const { dist, selfDist } = deployConfig;
         this.setState({
             loading: true,
@@ -143,6 +144,7 @@ class Deploy extends React.Component {
                 ...deployConfig,
                 dist: selfDist || dist,
                 operator: this.props.operator,
+                id
             },
             cb: res => {
                 if (res.c === 200) {
@@ -172,32 +174,49 @@ class Deploy extends React.Component {
 
     deploy(svnVersion) {
         const { deployConfig } = this.state;
+        const { _projectId, _brokerId, svnVersion: version } = deployConfig;
         this.setState({
             deployConfig: {
                 ...deployConfig,
                 svnVersion,
             },
-            visible: true,
+            id: _projectId + _brokerId + version + (+new Date()),
+        }, () => {
+            this.setState({
+                visible: true,
+            })
         });
     }
 
     render() {
-        const { deployConfig, visible, loading, errorMsg, showBrokerValue, brokers, projectIndex, canSwitch, currentPage } = this.state;
+        const { deployConfig, visible, loading, errorMsg, showBrokerValue, brokers, projectIndex, canSwitch, currentPage, id } = this.state;
+        const style = {backgroundColor: '#3500b7c7', borderColor: '#3500b7c7'}, style2 = {borderColor: '#da3c45', backgroundColor: '#da3c45', color: '#fff'};
+        const footer = [
+            <Button key="cancel" onClick={this.onCancel} style={style2}>算了</Button>,
+            <Button key="ok" type="primary" loading={loading} onClick={this.onOk} style={style}>部署</Button>
+        ];
         return (
             <section className={styles.deployContainer}>
-                <DeployModal
+                <Modal
                     title="确认部署？"
-                    width={300}
+                    width={'50%'}
                     visible={visible}
-                    onOk={this.onOk}
-                    onCancel={this.onCancel}
                     loading={loading}
-                    errorMsg={errorMsg}
-                    projectName={deployConfig.projectName}
-                    brokerName={deployConfig.brokerName}
-                    isTrunk={deployConfig.isTrunk}
-                    svnVersion={deployConfig.svnVersion}
-                />
+                    footer={footer}
+                    onCancel={this.onCancel}
+                    keyboard={false}
+                    destroyOnClose
+                    maskClosable={false}
+                >
+                    <DeployInfo
+                        errorMsg={errorMsg}
+                        projectName={deployConfig.projectName}
+                        brokerName={deployConfig.brokerName}
+                        isTrunk={deployConfig.isTrunk}
+                        svnVersion={deployConfig.svnVersion}
+                        id={id}
+                    />
+                </Modal>
                 <Divider/>
                 <Form layout="inline" className={styles.deployForm}>
                     <FormItem label="项目选择">

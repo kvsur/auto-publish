@@ -6,12 +6,14 @@ const Project = require('../models/Project');
 const RollBack = require('./rollback');
 const { success, error: errorConsole } = require('../common/chalk');
 const execChmod = require('child_process').exec;
+const SocketServer = require('../server/socket');
 
 const { PACKAGE_DIR_ROOT, ARCHIVE_PATH, DIST_PATH, DEPLOY_PATH } = require('../config/path.config');
 
 class Deploy {
-    constructor({ _brokerId, _projectId, root, packageWhere, dist, isTrunk, svnVersion, projectKey, projectName, brokerKey, brokerName, operator, response }) {
+    constructor({ id, _brokerId, _projectId, root, packageWhere, dist, isTrunk, svnVersion, projectKey, projectName, brokerKey, brokerName, operator, response }) {
         this._brokerId = _brokerId;
+        this.id = id;
         this._projectId = _projectId;
         this.projectKey = projectKey;
         this.brokerKey = brokerKey;
@@ -43,6 +45,13 @@ class Deploy {
         this.rollback = new RollBack({ deployPath, ARCHIVE_PATH });
     }
 
+    send(type, info) {
+        SocketServer.sendMessage(this.id, 'deploy-message', {
+            type,
+            info
+        });
+    }
+
     /**
      * 一次完整发布的入口
      */
@@ -53,16 +62,20 @@ class Deploy {
         const broker = project.brokers.find(broker => broker._id.toString() === this._brokerId);
         const { brokerShell, useShell } = broker;
         this.shell = { brokerShell, useShell };
+        this.send('success', '启动部署流程...')
         this._pullPackage();
     }
 
-    _exec({ cmd, error, name, next }) {
+    _exec({ cmd, error, name, next, comment }) {
+        this.send('success', comment)
         this.stepError = error;
         exec({ cmd }).then(res => {
+            this.send('success', res.toString())
             name && this.rollback.push(name);
             next();
         }).catch(e => {
             errorConsole(e);
+            this.send('error', e.message || e.toString())
             this.log.error = error;
             this._end();
         });
@@ -81,6 +94,7 @@ class Deploy {
             next: () => {
                 this._tarArchive();
             },
+            comment: '_pullPackage, 拉取puppet镜像包...',
         });
     }
     /**
@@ -88,7 +102,7 @@ class Deploy {
      */
     _tarArchive() {
         success('_tarArchive......↓');
-        const cmd = `tar -mxf ${ARCHIVE_PATH}/${this.tarName} -C ${DIST_PATH}`;
+        const cmd = `tar -mxvf ${ARCHIVE_PATH}/${this.tarName} -C ${DIST_PATH}`;
         this._exec({
             cmd,
             error: '解压部署包失败',
@@ -96,6 +110,7 @@ class Deploy {
             next: () => {
                 this._bakMap();
             },
+            comment: '_tarArchive, 解压puppet镜像包...',
         });
     }
     /**
@@ -111,6 +126,7 @@ class Deploy {
             next: () => {
                 this._deploy();
             },
+            comment: '_bakMap, 开始备份旧版文件...',
         });
     }
     /**
@@ -126,6 +142,7 @@ class Deploy {
             next: () => {
                 this._execPlusShell();
             },
+            comment: '_deploy, 进行正式部署，替换文件...',
         });
     }
 
@@ -148,6 +165,7 @@ class Deploy {
                         this.log.result = true;
                         this._end();
                     },
+                    comment: '_execPlusShell, 执行项目附件脚本...',
                 });
             } catch(e) {
                 errorConsole(e.messages);
@@ -177,6 +195,7 @@ class Deploy {
                         d: this.log,
                     });
                 },
+                comment: '_end, 执行最终部署步骤,_willdel, 删除临时文件...',
             });
 
             return;
@@ -188,8 +207,10 @@ class Deploy {
      */
     async _roll() {
         success('_roll......↓');
+        this.send('warning', '_roll, 部署失败进行回滚...')
         this.log.error = this.stepError;
         await this.log.save();
+        this.send('warning', '_log, 日志写入数据库...')
         this.rollback.roll();
         this.response.json({
             c: 500,
