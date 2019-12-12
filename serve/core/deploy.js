@@ -68,6 +68,7 @@ class Deploy {
 
     _exec({ cmd, error, name, next, comment }) {
         this.send('success', comment)
+        this.send('success', cmd);
         this.stepError = error;
         exec({ cmd }).then(res => {
             this.send('success', res.toString())
@@ -189,6 +190,7 @@ class Deploy {
                 error: '最终部署步骤失败_end',
                 next: () => {
                     this.log.save();
+                    this.send('success', '_done, 部署完成，写入log日志数据，可在日志栏查看部署日志');
                     this.response.json({
                         c: 200,
                         m: '部署成功',

@@ -1,6 +1,6 @@
 const Server = require('ws').Server;
 
-const SERVER_PORT = 9527;
+const SERVER_PORT = 7321;
 
 const instances = {};
 

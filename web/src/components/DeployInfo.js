@@ -14,7 +14,7 @@ class DeployInfo extends React.Component {
         this.setState({
             msgs: []
         });
-        this.socket = new WebSocket(`ws://127.0.0.1:9527/deploy_socket`);
+        this.socket = new WebSocket(`ws://${window.location.host}/deploy_socket`);
         this.socket.onmessage = e => {
             const { messageType, data } = JSON.parse(e.data);
             if (messageType === 'deploy-message') {

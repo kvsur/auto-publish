@@ -32,6 +32,7 @@ class Deploy extends React.Component {
         visible: false,
         errorMsg: '',
         loading: false,
+        showBtn: true,
         id: '',
     };
 
@@ -149,9 +150,9 @@ class Deploy extends React.Component {
             cb: res => {
                 if (res.c === 200) {
                     this.setState({
-                        visible: false,
+                        showBtn: false,
                     });
-                    message.success('部署成功');
+                    // message.success('部署成功');
                 } else {
                     this.setState({
                         errorMsg: `后端挂了` + res.m,
@@ -169,6 +170,7 @@ class Deploy extends React.Component {
             visible: false,
             errorMsg: '',
             loading: false,
+            showBtn: true,
         });
     }
 
@@ -189,7 +191,7 @@ class Deploy extends React.Component {
     }
 
     render() {
-        const { deployConfig, visible, loading, errorMsg, showBrokerValue, brokers, projectIndex, canSwitch, currentPage, id } = this.state;
+        const { showBtn, deployConfig, visible, loading, errorMsg, showBrokerValue, brokers, projectIndex, canSwitch, currentPage, id } = this.state;
         const style = {backgroundColor: '#3500b7c7', borderColor: '#3500b7c7'}, style2 = {borderColor: '#da3c45', backgroundColor: '#da3c45', color: '#fff'};
         const footer = [
             <Button key="cancel" onClick={this.onCancel} style={style2}>算了</Button>,
@@ -202,7 +204,7 @@ class Deploy extends React.Component {
                     width={'50%'}
                     visible={visible}
                     loading={loading}
-                    footer={footer}
+                    footer={showBtn ? footer: null}
                     onCancel={this.onCancel}
                     keyboard={false}
                     destroyOnClose
