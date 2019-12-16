@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Select, Form, Switch, Divider, Button, Tag, message, Pagination, Modal } from 'antd';
+import { Select, Form, Switch, Divider, Button, Tag, Pagination, Modal } from 'antd';
 
 import color from '../utils/Color';
 import DeployInfo from '../components/DeployInfo';
+import Report from '../components/Report';
 
 import styles from './Deploy.less';
 
@@ -279,6 +280,7 @@ class Deploy extends React.Component {
                         : null
                     }
                 </section>
+                <Report />
             </section>
         );
     }

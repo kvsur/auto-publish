@@ -8,6 +8,7 @@ import doc from './models/doc';
 import auth from './models/auth';
 import user from './models/user';
 import project from './models/project';
+import report from './models/report';
 
 import './index.css';
 // 1. Initialize
@@ -24,6 +25,7 @@ app.model(doc);
 app.model(auth);
 app.model(user);
 app.model(project);
+app.model(report);
 
 // 4. Router
 app.router(router);

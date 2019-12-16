@@ -39,13 +39,15 @@ class DeployInfo extends React.Component {
     }
 
     componentWillUnmount() {
-        this.socket.send(JSON.stringify({
-            messageType: 'logout',
-            id: this.props.id,
-            data: ''
-        }));
-        this.socket.close();
-        this.socket = null;
+        if (this.socket !== null) {
+            this.socket.send(JSON.stringify({
+                messageType: 'logout',
+                id: this.props.id,
+                data: ''
+            }));
+            this.socket.close();
+            this.socket = null;
+        }
     }
 
     doAnimation() {

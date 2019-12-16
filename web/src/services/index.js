@@ -20,6 +20,12 @@ export function fetchLogs(body) {
 	})
 }
 
+export function report() {
+	return request(`/api/report`, {
+		method: 'GET',
+	});
+}
+
 export function getProjectConfig() {
 	return request(`/api/projectConfig`, {
 		method: 'GET',

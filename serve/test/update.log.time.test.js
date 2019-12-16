@@ -8,10 +8,10 @@ const db = mongo.connection;
 db.on('connected', async () => {
     console.log('Mongo connection is ok .....');
     try {
-        const logs = await Log.find({});
+        const logs = await Log.find({"operator": "wanwei"});
         for (let log of logs) {
-            const { _id, deployTime } = log;
-            await Log.findByIdAndUpdate(_id, { date: (new Date(deployTime.toString())).getTime() });
+            const { _id } = log;
+            await Log.findByIdAndUpdate(_id, { operator: '万伟'});
         }
     } catch (e) {
         console.log(e);

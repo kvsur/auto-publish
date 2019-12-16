@@ -56,7 +56,11 @@ router.post('/auth', async (request, response) => {
 router.post('/log', async (request, response) => {
     const { beginTime, endTime, projectName, brokerName, currentPage, perPage } = request.body;
     try {
-        const t = (await Log.find()).length;
+        const t = (await Log.find({
+            date: { $gte: beginTime, $lte: endTime },
+            projectName: new RegExp(`${projectName}`),
+            brokerName: new RegExp(`${brokerName}`),
+        })).length;
         const logs = await Log.find({
             date: { $gte: beginTime, $lte: endTime },
             projectName: new RegExp(`${projectName}`),
@@ -96,6 +100,73 @@ router.post('/doc', (request, response) => {
     const doc = request.body;
     Doc.newDoc({ doc, response });
 });
+
+router.get('/report', async (request, response) => {
+    try {
+        const logs = await Log.find({});
+        const reportStepOne = {};
+        const reportOperator = {};
+        for (let log of logs) {
+            const { projectName, brokerName, operator } = log;
+            if (reportStepOne[projectName]) {
+                reportStepOne[projectName].count += 1;
+                reportStepOne[projectName][brokerName] = reportStepOne[projectName][brokerName] + 1 || 1;
+            }
+            else {
+                reportStepOne[projectName]  = {
+                    count: 1,
+                    [brokerName]: 1
+                }
+            }
+
+            reportOperator[operator] = reportOperator[operator] + 1 || 1;
+        }
+
+        const userReport = {
+            labels: [],
+            values: []
+        };
+        const projectReport = [];
+
+        let brokerMax = 0;
+
+        Object.keys(reportStepOne).forEach((key) => {
+            if (reportStepOne[key].count > brokerMax) brokerMax = reportStepOne[key].count;
+            const item = {
+                projectName: `${key}累计-${reportStepOne[key].count}`,
+                ...reportStepOne[key],
+            };
+            item.count = void 0;
+
+            projectReport.push(item)
+        });
+
+        Object.keys(reportOperator).forEach((key) => {
+            userReport.labels.push(key);
+            userReport.values.push(reportOperator[key]);
+        });
+
+        response.json({
+            c: 200,
+            m: '',
+            d: {
+                userReport,
+                projectReport,
+                brokerMax
+            },
+        });
+    } catch (e) {
+        response.json({
+            c: 500,
+            m: e,
+            d: {
+                userReport: [],
+                projectReport: [],
+                brokerMax: 0
+            },
+        });
+    }
+})
 
 
 /**
@@ -165,13 +236,13 @@ router.post('/addConfig', async (request, response) => {
     const config = request.body;
 
     try {
-        const proejct = new Project(config);
-        await proejct.save();
+        const project = new Project(config);
+        await project.save();
 
         response.json({
             c: 200,
             m: '',
-            d: proejct,
+            d: project,
         });
     } catch (e) {
         console.log(e);

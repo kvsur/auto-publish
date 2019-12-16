@@ -190,9 +190,20 @@ class Log extends React.Component {
                 <Table
                     dataSource={this.props.logs}
                     columns={columns}
-                    locale={{ emptyText: '今天没有发包部署记录' }}
+                    locale={{ emptyText: '当前过滤条件下没有发包部署记录' }}
                     pagination={false}
                 />
+                <Pagination
+                    style={{textAlign: 'right', margin: '20px auto'}}
+                    size="small"
+                    pageSizeOptions={['20', '40', '80', '100']}
+                    showSizeChanger={true}
+                    // showTotal={true}
+                    total={total}
+                    current={currentPage}
+                    pageSize={perPage}
+                    onChange={this.currentChange}
+                    onShowSizeChange={this.sizeChange} />
             </section>
         );
     }
